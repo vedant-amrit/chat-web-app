@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    Your peer ID is: <span id="pid"></span><br>
+    Your Friend's peer ID is: <input type="text" name="fid" id="fid"> <button onclick="connect()">Connect</button><br>
+    <div>
+        <h3>Chat</h3>
+        <div id="chat"></div>
+        <input type="text" name="msg" id="msg">
+        <button onclick="send()">Send</button>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+    <script>
+        var myPeerId = window.prompt("Enter your peer ID");
+        var peer = new Peer(myPeerId);
+        document.getElementById('pid').innerText = myPeerId;
+        var conn;
+
+        function connect() {
+            var fid = document.getElementById('fid').value;
+            conn = peer.connect(fid);
+            conn.on('open', function(){
+                conn.send('Connected!!!');
+            });
+        }
+
+        peer.on('connection', function(conn) {
+            conn.on('data', function(data){
+                if(document.getElementById('fid').value === ""){
+                    document.getElementById('fid').value = conn.peer;
+                    connect();
+                }
+                document.getElementById('chat').innerHTML += `${document.getElementById('fid').value} : ` + data + '<br>';
+            });
+        });
+
+        function send() {
+            var msg = document.getElementById('msg').value;
+            document.getElementById('chat').innerHTML += `${myPeerId} : ` + msg + '<br>';
+            conn.send(msg);
+        }
+
+    </script>
+</body>
+</html>
